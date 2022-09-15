@@ -96,11 +96,14 @@ void drawCounter(int count1, int count2) {
   text("Scale: " + timeScale, width - 100, 120);
   text("Total Entries: " + totalEntries, 50, 60);
   
+  fill(0);
+  textSize(50);
   if (timeScale.equals("HOUR")) {
-    fill(0);
-    textSize(50);
-    text(timeString.split("T")[1], width/2 - 100, height/3);
+    text(latestTime.getDayOfWeek().toString() + " " + timeString.split("T")[1], width/2 - 100, height/3);
+  } else {
+    text(latestTime.getDayOfWeek().toString(), width/2 - 150, height/3);
   }
+
 }
 
 // Calculates the start time in the given time scale (gets minimum value to start from)

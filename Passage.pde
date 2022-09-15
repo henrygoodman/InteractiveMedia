@@ -30,7 +30,7 @@ public class Passage {
   
   public void display(int count, boolean busier) {
     textSize(20);
-    color textColor = busier ? color(0, 255, 0) : color(40, 40, 40);
+    color textColor = busier ? color(100, 150, 100) : color(40, 40, 40);
     fill(textColor);
     text(name, position[0], position[1] - 10);
     text("Count: " + count, position[0] + w + 10, position[1] + h/2);
