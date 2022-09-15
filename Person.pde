@@ -4,7 +4,8 @@ public class Person {
    float minY, maxY;
    float[] entrancePosition;
    boolean walkedIn = false;
-   color personColor = color(255, 120, 0);
+   color personColor = color(255, 120, 0, random(100, 200));
+   float size = random(4,8);
    int life = 0;
    
    public Person(Passage p) {
@@ -30,7 +31,7 @@ public class Person {
      
      if (Math.abs(currDistX) >= 2) {
        xpos += deltaX;
-       ypos += random(-5, 5);
+       ypos += random(-3, 3);
        if (ypos < minY) {ypos = minY;}
        if (ypos > maxY) {ypos = maxY;}
      }
@@ -53,7 +54,7 @@ public class Person {
      // Update this to display the image
      noStroke();
      fill(personColor);
-     ellipse(xpos, ypos, 6, 6);
+     ellipse(xpos, ypos, size, size);
    }
   
 }

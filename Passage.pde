@@ -28,11 +28,15 @@ public class Passage {
     return position;
   }
   
-  public void display() {
+  public void display(int count, boolean busier) {
+    textSize(20);
+    color textColor = busier ? color(0, 255, 0) : color(40, 40, 40);
+    fill(textColor);
+    text(name, position[0], position[1] - 10);
+    text("Count: " + count, position[0] + w + 10, position[1] + h/2);
     stroke(0);
     fill(134);
     rect(position[0], position[1], w, h);
-    text(name, position[0], position[1] - 10);
     for (int i = 0; i < people.size(); i++) {
       people.get(i).display();
       people.get(i).move();

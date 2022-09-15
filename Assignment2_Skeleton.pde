@@ -59,8 +59,8 @@ void draw() {
   background(backgroundColor);
 
   map.display();
-  p1.display();
-  p2.display();
+  p1.display(n1, n1 > n2);
+  p2.display(n2, n2 > n1);
   
   // Update according to pollRate. 
   if (frameCount == 1 || frameCount * pollRate % targetFrames <= 0.05) {
