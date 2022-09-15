@@ -41,14 +41,6 @@ public class Person {
        walkedIn = true;
      }
    }
-   
-   public void idle() {
-     
-   }
-  
-   public void walkOut() {
-    
-   }
   
    public void display() { 
      // Update this to display the image
