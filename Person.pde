@@ -42,11 +42,11 @@ public class Person {
      }
    }
   
-   public void display() { 
+   public void display(PImage img) { 
      // Update this to display the image
      noStroke();
      fill(personColor);
-     ellipse(xpos, ypos, size, size);
+     image(img, xpos, ypos - 50, 50, 50);
    }
   
 }

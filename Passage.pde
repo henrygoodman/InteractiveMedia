@@ -12,6 +12,7 @@ public class Passage {
   LinkedList<Person> people;
   float w = 80;
   float h = 75;
+  PImage img = loadImage("Assets/StickF1.gif");
   
   public Passage(String name, float x, float y) {
     this.name = name;
@@ -38,7 +39,7 @@ public class Passage {
     fill(134);
     rect(position[0], position[1], w, h);
     for (int i = 0; i < people.size(); i++) {
-      people.get(i).display();
+      people.get(i).display(img);
       people.get(i).move();
     }
   }
