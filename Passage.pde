@@ -6,23 +6,29 @@ import java.time.temporal.ChronoUnit;
 public class Passage {
   float[] position = {0, 0};
   String name;
-  float countIN;
   String[][] data;
   int index = 0;
   LinkedList<Person> people;
   float w = 80;
   float h = 75;
-  PImage img = loadImage("Assets/StickF1.gif");
+  float entrancePos;
+  PImage[] img = {loadImage("Assets/Images/StickF1.gif"),
+                  loadImage("Assets/Images/StickF2.gif"),
+                  loadImage("Assets/Images/StickF3.gif"),
+                  loadImage("Assets/Images/StickF4.gif"),
+                };
   
-  public Passage(String name, float x, float y) {
+  public Passage(String name, float x, float y, float mapXpos) {
     this.name = name;
     position[0] = x;
     position[1] = y;
     people = new LinkedList();
+    entrancePos = mapXpos;
   }
   
   public void setData(String[][] data) {
     this.data = data;
+    normalizeYear();
   }
   
   public float[] getPosition() {
@@ -34,12 +40,16 @@ public class Passage {
     color textColor = busier ? color(100, 150, 100) : color(40, 40, 40);
     fill(textColor);
     text(name, position[0], position[1] - 10);
-    text("Count: " + count, position[0] + w + 10, position[1] + h/2);
+    textSize(15);
+    text("Count: " + count, position[0], position[1] + h + 20);
     stroke(0);
     fill(134);
+    
     rect(position[0], position[1], w, h);
+    rect(position[0] + w/2 - 3, position[1], 6, h);
+    
     for (int i = 0; i < people.size(); i++) {
-      people.get(i).display(img);
+      people.get(i).display(img[frameCount % 32 / 8]);
       people.get(i).move();
     }
   }
@@ -48,7 +58,6 @@ public class Passage {
   int updateHour(LocalDateTime currentTimeInterval) {
     int intervalCount = 0;
     int currentHour = currentTimeInterval.getHour();
-    
     float currentData = Float.parseFloat(data[index][1]);
     LocalDateTime currentTime = stringToDate(data[index][0]);
 
@@ -62,11 +71,14 @@ public class Passage {
     while (currentTime.getHour() == currentHour) {
       int addCount = 0;
       while (addCount < currentData) {
+          // If we are drawing heaps, only render every 2nd.
+          if (intervalCount > 100 && addCount % 2 != 0) break;
           people.add(new Person(this));
           addCount++;
       }
-      countIN += currentData;
+      
       intervalCount += currentData;
+      
       // Get a new data point while in the same hour.
       index++;
       if (index >= data.length) {index = 0;}
@@ -92,15 +104,15 @@ public class Passage {
       currentTime = stringToDate(data[index][0]);
     }
     
-    System.out.println(currentDay + " " + currentTime.getDayOfWeek());
     // Update every day (iterate all the points until we reach the next day.)
     while (currentTime.getDayOfWeek() == currentDay) {
       int addCount = 0;
       while (addCount < currentData) {
+          // If we are drawing heaps, only render every 2nd.
+          if (intervalCount > 100 && addCount % 2 != 0) break;
           people.add(new Person(this));
           addCount++;
       }
-      countIN += currentData;
       intervalCount += currentData;
       
       // Get a new data point while in the same day.
@@ -111,6 +123,14 @@ public class Passage {
     }
     removePeople();
     return intervalCount;
+  }
+  
+  // Dont pay much attention to this, this just converts each data DATE to the same year so we can compare hour/day times easier.
+  void normalizeYear() {
+    for (int i = 0; i < data.length; i++) {
+      String year = data[i][0].split("-")[0];
+      data[i][0] = data[i][0].replace(year, "1900");
+    }
   }
   
   void removePeople() {
@@ -125,10 +145,4 @@ public class Passage {
     }
     people.removeAll(removeList);
   }
-  LocalDateTime stringToDate(String date) {
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
-    return dateTime;
-  }
-  
 }

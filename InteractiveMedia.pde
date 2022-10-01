@@ -11,9 +11,8 @@ import controlP5.*;
 
 // GLOBAL PARAMETERS
 ControlP5 cp5;
-Map map;
-Passage p1, p2;
-int n1 = 0, n2 = 0; // Tracks the entrance count for both passages at each time interval.
+Map map1, map2, map3, map4;
+int n1, n2, n3, n4; // Tracks the entrance count for both passages at each time interval.
 LocalDateTime startTime;
 LocalDateTime currentTime, latestTime;
 float targetFrames = 60;
@@ -23,8 +22,17 @@ color backgroundColor = color( 10, 10, 10);
 float pollRate = 0.3; // This number determines how many updates occur each second of real time.
 boolean toggleValue = true;
 String timeScale = toggleValue ? "HOUR" : "DAY";
+String latestTimeScale = "";
+
+int TOP_OFFSET = 80;
+int WIDTH_PADDING = 20;
+int DRAW_HEIGHT;
+int DRAW_WIDTH;
 
 void setup() {
+  DRAW_HEIGHT = height - TOP_OFFSET;
+  DRAW_WIDTH = width - WIDTH_PADDING;
+  
   frameRate(targetFrames);
   size(1000, 800);
   background(backgroundColor);
@@ -35,76 +43,74 @@ void setup() {
   // Add timescale toggle
   addToggle();
   
-  // Load the map
-  map = new Map();
+  // Load the maps
+  map1 = new Map(1, "2022");
+  map2 = new Map(2, "2021");
+  map3 = new Map(3, "2020");
+  map4 = new Map(4, "2019");
   
-  // Set map entrances
-  p1 = new Passage("Broadway", 2*width/3, height/2 - 75);
-  p2 = new Passage("Jones St", 2*width/3, height/2 + 75);
+  // Set the data for Broadway TODO set for each map
+  map1.p1.setData(loadData("https://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2022-04-01T00%3A00&rToDate=2022-12-31T23%3A59%3A59&rFamily=people_sh&rSensor=CB11.PC02.14.Broadway&rSubSensor=CB11.02.Broadway.East+In"));
+  map2.p1.setData(loadData("https://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2021-04-01T00%3A00&rToDate=2021-12-31T23%3A59%3A59&rFamily=people_sh&rSensor=CB11.PC02.14.Broadway&rSubSensor=CB11.02.Broadway.East+In"));
+  map3.p1.setData(loadData("https://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2020-04-01T00%3A00&rToDate=2020-12-31T23%3A59%3A34&rFamily=people&rSensor=+PC02.14+%28In%29"));
+  map4.p1.setData(loadData("https://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2019-04-01T00%3A00&rToDate=2019-12-31T23%3A59%3A34&rFamily=people&rSensor=+PC02.14+%28In%29"));
   
-  // Set the data for Broadway (April 1 - Dec 31)
-  p1.setData(loadData("https://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2021-04-01T00%3A00&rToDate=2021-12-31T23%3A59%3A59&rFamily=people_sh&rSensor=CB11.PC02.14.Broadway&rSubSensor=CB11.02.Broadway.East+In"));
+  // Set the data for Jones St TODO set for each map
+  map1.p2.setData(loadData("https://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2022-04-01T00%3A00&rToDate=2022-12-31T23%3A59%3A59&rFamily=people_sh&rSensor=CB11.PC02.16.JonesStEast&rSubSensor=CB11.02.JonesSt+In"));
+  map2.p2.setData(loadData("https://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2021-04-01T00%3A00&rToDate=2021-12-31T23%3A59%3A59&rFamily=people_sh&rSensor=CB11.PC02.16.JonesStEast&rSubSensor=CB11.02.JonesSt+In"));
+  map3.p2.setData(loadData("https://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2020-04-01T00%3A00&rToDate=2020-12-31T23%3A59%3A34&rFamily=people&rSensor=+PC02.16+%28In%29"));
+  map4.p2.setData(loadData("https://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2019-04-01T00%3A00&rToDate=2019-12-31T23%3A59%3A34&rFamily=people&rSensor=+PC02.16+%28In%29"));
   
-  // Set the data for Jones St (Aprial 1 - Dec 31)
-  p2.setData(loadData("https://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2021-04-01T00%3A00&rToDate=2021-12-31T23%3A59%3A59&rFamily=people_sh&rSensor=CB11.PC02.16.JonesStEast&rSubSensor=CB11.02.JonesSt+In"));
-  
-  // Set the start time for the sketch (compare the first 2 times), set the currentTime to the startTime to begin.
-  String[] startTimes = {p1.data[0][0], p2.data[0][0]};
+  // Set the start time for the sketch (compare the first 2 times), set the currentTime to the startTime to begin. TODO - get the time regardless of year.
+  String[] startTimes = {map1.p1.data[0][0], map1.p2.data[0][0], 
+                         map2.p1.data[0][0], map2.p2.data[0][0], 
+                         map3.p1.data[0][0], map3.p2.data[0][0], 
+                         map4.p1.data[0][0], map4.p2.data[0][0]};
   startTime = getStartTime(startTimes);
   currentTime = startTime;
+  latestTime = startTime;
   
 }
-
 void draw() {
   background(backgroundColor);
-
-  map.display();
-  p1.display(n1, n1 > n2);
-  p2.display(n2, n2 > n1);
+  drawMainGUI();
   
-  // Update according to pollRate. 
+  // n is the count displayed on each map in top corner.
+  n1 = map1.display();
+  n2 = map2.display();
+  n3 = map3.display();
+  n4 = map4.display();
+  displayBusiest(n1, n2, n3, n4);
+  
+  // Every time we toggle the scale, update the latest time (so when we switch from DAY back to HOUR correct time shows as midnight).
+  timeScale = toggleValue ? "HOUR" : "DAY";
+  if (timeScale != latestTimeScale) latestTime = currentTime;
+  latestTimeScale = timeScale;
+  
   if (frameCount == 1 || frameCount * pollRate % targetFrames <= 0.05) {
-    System.out.println("Updating...");
-    
+    latestTime = currentTime;
     if (timeScale.equals("HOUR")) {
-      latestTime = currentTime;
-      n1 = p1.updateHour(currentTime);
-      n2 = p2.updateHour(currentTime);
       currentTime = currentTime.plusHours(1);
     }
     if (timeScale.equals("DAY")) {
-      latestTime = currentTime;
-      n1 = p1.updateDay(currentTime);
-      n2 = p2.updateDay(currentTime);
-      currentTime = currentTime.plusHours(24);
+      currentTime = currentTime.plusHours(24 - currentTime.getHour());
     }
   }
-  drawCounter(n1, n2);
-  timeScale = toggleValue ? "HOUR" : "DAY";
 }
 
-void drawCounter(int count1, int count2) {
-  fill(255);
-  textSize(15);
-  float totalEntries = count1 + count2;
+void drawMainGUI() {
   String timeString = latestTime.toString();
-  
-  if (timeScale.equals("DAY"))
-  timeString = timeString.split("T")[0];
-  text("Date: " + timeString, 50, 20);
-  text("Day: " + latestTime.getDayOfWeek(), 50, 40);
-  text("Scale: " + timeScale, width - 100, 120);
-  text("Total Entries: " + totalEntries, 50, 60);
-  
-  fill(0);
+  fill(255);
   textSize(50);
   if (timeScale.equals("HOUR")) {
-    text(latestTime.getDayOfWeek().toString() + " " + timeString.split("T")[1], width/2 - 200, height/3);
+    text(latestTime.getDayOfWeek().toString() + " " + timeString.split("T")[1], width/2 - 200, 50);
   } else {
-    text(latestTime.getDayOfWeek().toString(), width/2 - 150, height/3);
+    text(latestTime.getDayOfWeek().toString(), width/2 - 150, 50);
   }
-
+  textSize(15);
+  text("Scale: " + timeScale, width - 100, 40);
 }
+
 
 // Calculates the start time in the given time scale (gets minimum value to start from)
 LocalDateTime getStartTime(String[] strings) {
@@ -143,9 +149,24 @@ LocalDateTime stringToDate(String date) {
 
 void addToggle() {
   cp5.addToggle("toggleValue")
-     .setPosition(width - 100, 50)
+     .setPosition(width - 170, 25)
      .setCaptionLabel("Time Scale")
      .setColorBackground(color(255,0,0))
      .setColorForeground(color(0,0,255))
      .setColorActive(color(0,255,0));
+}
+
+void displayBusiest(int x1, int x2, int x3, int x4) {
+  if (x1 >= x2 && x1 >= x3 && x1 >= x4) {
+    map1.displayBusiest();
+  }
+  if (x2 >= x1 && x2 >= x3 && x2 >= x4) {
+    map2.displayBusiest();
+  }
+  if (x3 >= x1 && x3 >= x2 && x3 >= x4) {
+    map3.displayBusiest();
+  }
+  if (x4 >= x1 && x4 >= x2 && x4 >= x3) {
+    map4.displayBusiest();
+  }
 }
