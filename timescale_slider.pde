@@ -1,14 +1,4 @@
-import controlP5.*;
-ControlP5 cp5;
-
-int scl2 = 1000; //variable changes scale with slider - change to index?
-
-void setup() {
-  size(1000, 800);
-  
-  cp5 = new ControlP5(this); //initialise
-  addSliders();
-}
+int scl2;
 
 void scaleSlider(int val) {
   scl2 = val;
@@ -21,6 +11,5 @@ void addSliders() {
      .setRange(10,40)
      .setValue(scl2)
      .setLabel("Time Scale")
-     .setColorLabel(0)
-     ;
+     .setColorLabel(0);
 }
