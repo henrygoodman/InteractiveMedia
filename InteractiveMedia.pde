@@ -1,4 +1,4 @@
-import controlP5.*;
+ import controlP5.*;
 /* This file will act as the basic skeleton for assignment 2. Defining all the classes we need, the functions, etc. We will work on components separately, and then once they are finished
  * we can add them to this skeleton and consider that portion complete. 
  *
