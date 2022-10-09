@@ -7,23 +7,36 @@ public class Passage {
   float[] position = {0, 0};
   String name;
   String[][] data;
-  int index = 0;
+  public int index = 0;
   LinkedList<Person> people;
   float w = 80;
   float h = 75;
   float entrancePos;
+  Map m;
   PImage[] img = {loadImage("Assets/Images/StickF1.gif"),
                   loadImage("Assets/Images/StickF2.gif"),
                   loadImage("Assets/Images/StickF3.gif"),
                   loadImage("Assets/Images/StickF4.gif"),
                 };
+  PImage[] door = {loadImage("Assets/Images/Door1.gif"),
+                  loadImage("Assets/Images/Door2.gif"),
+                  loadImage("Assets/Images/Door3.gif"),
+                  loadImage("Assets/Images/Door4.gif"),
+                  loadImage("Assets/Images/Door5.gif"),
+                };
+  PImage doorState = door[0];
+  boolean doorOpen = false;
+  int currentDoorIndex = 0;
+  int soundIndex;
   
-  public Passage(String name, float x, float y, float mapXpos) {
+  public Passage(String name, float x, float y, float mapXpos, Map m, int si) {
     this.name = name;
     position[0] = x;
     position[1] = y;
     people = new LinkedList();
     entrancePos = mapXpos;
+    this.m = m;
+    soundIndex = si;
   }
   
   public void setData(String[][] data) {
@@ -37,17 +50,22 @@ public class Passage {
   
   public void display(int count, boolean busier) {
     textSize(20);
-    color textColor = busier ? color(100, 150, 100) : color(40, 40, 40);
+    color textColor = busier ? color(80, 180, 80) : color(40, 40, 40);
     fill(textColor);
-    text(name, position[0], position[1] - 10);
+    text(name, position[0] + 5, position[1]);
     textSize(15);
     text("Count: " + count, position[0], position[1] + h + 20);
+    
     stroke(0);
-    fill(134);
+    fill(163, 145, 132, 100);
+    rect(m.xpos, position[1] + 33, m.w - 103, 40);
     
-    rect(position[0], position[1], w, h);
-    rect(position[0] + w/2 - 3, position[1], 6, h);
-    
+    removePeople();
+    updateDoor();
+    fill(134, 90);
+    rect(position[0] + 10, position[1] + 10, w - 20, h- 10);
+    image(doorState, position[0], position[1], w, h);
+
     for (int i = 0; i < people.size(); i++) {
       people.get(i).display(img[frameCount % 32 / 8]);
       people.get(i).move();
@@ -72,7 +90,7 @@ public class Passage {
       int addCount = 0;
       while (addCount < currentData) {
           // If we are drawing heaps, only render every 2nd.
-          if (intervalCount > 100 && addCount % 2 != 0) break;
+          if (intervalCount > 100 && addCount % 4 != 0) break;
           people.add(new Person(this));
           addCount++;
       }
@@ -85,7 +103,6 @@ public class Passage {
       currentTime = stringToDate(data[index][0]);
       currentData = Float.parseFloat(data[index][1]);
     }
-    removePeople();
     return intervalCount;
   }
   
@@ -109,7 +126,7 @@ public class Passage {
       int addCount = 0;
       while (addCount < currentData) {
           // If we are drawing heaps, only render every 2nd.
-          if (intervalCount > 100 && addCount % 2 != 0) break;
+          if (intervalCount > 100 && addCount % 4 != 0) break;
           people.add(new Person(this));
           addCount++;
       }
@@ -121,7 +138,6 @@ public class Passage {
       currentTime = stringToDate(data[index][0]);
       currentData = Float.parseFloat(data[index][1]);
     }
-    removePeople();
     return intervalCount;
   }
   
@@ -137,12 +153,59 @@ public class Passage {
     LinkedList<Person> removeList = new LinkedList<Person>();
     for (Person p : people) {
       if (p.walkedIn) {
-        p.life++;
-      }
-      if (p.life > 0) {
         removeList.add(p);
       }
     }
     people.removeAll(removeList);
   }
+  
+  void updateDoor() {
+   if (!doorOpen) {
+     boolean firstPersonClose = false;
+      for (Person p : people) {
+        if (p.getDistance() != 0 && p.getDistance() < 150) {
+          firstPersonClose = true;
+          break;
+        } 
+     }
+     if (firstPersonClose)
+       openDoor();
+   }
+   else {
+     boolean lastPersonInside = true;
+      for (Person p : people) {
+        if (p.getDistance() != 0 && p.getDistance() > 10) {
+          lastPersonInside = false;
+        } 
+     }
+     if (lastPersonInside)
+       closeDoor();
+   }
+  }
+  
+  void openDoor() {
+     if (doorState == door[4]) {
+       doorOpen = true;
+       return;
+     }
+     if (frameCount % 5 == 0) {
+       currentDoorIndex += 1;
+       doorState = door[currentDoorIndex];
+     }
+     if (!sounds[soundIndex].isPlaying() && m.setAudioEnabled) {
+       sounds[soundIndex].play();
+     }
+ }
+ 
+ void closeDoor() {
+    if (doorState == door[0]) {
+      doorOpen = false;
+      return;
+    }
+    if (frameCount % 5 == 0) {
+       currentDoorIndex -= 1;
+       doorState = door[currentDoorIndex];
+    }
+ }
+ 
 }

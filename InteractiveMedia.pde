@@ -1,4 +1,5 @@
  import controlP5.*;
+ import processing.sound.*;    
 /* This file will act as the basic skeleton for assignment 2. Defining all the classes we need, the functions, etc. We will work on components separately, and then once they are finished
  * we can add them to this skeleton and consider that portion complete. 
  *
@@ -16,6 +17,7 @@ int n1, n2, n3, n4; // Tracks the entrance count for both passages at each time 
 LocalDateTime startTime;
 LocalDateTime currentTime, latestTime;
 float targetFrames = 60;
+SoundFile[] sounds;
 
 // Parameters accessible to change
 color backgroundColor = color( 10, 10, 10);
@@ -40,9 +42,6 @@ void setup() {
   // Instantiate GUI controller
   cp5 = new ControlP5(this);
   
-  // Add timescale toggle
-  addToggle();
-  
   // Load the maps
   map1 = new Map(1, "2022");
   map2 = new Map(2, "2021");
@@ -50,16 +49,16 @@ void setup() {
   map4 = new Map(4, "2019");
   
   // Set the data for Broadway TODO set for each map
-  map1.p1.setData(loadData("https://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2022-04-01T00%3A00&rToDate=2022-12-31T23%3A59%3A59&rFamily=people_sh&rSensor=CB11.PC02.14.Broadway&rSubSensor=CB11.02.Broadway.East+In"));
-  map2.p1.setData(loadData("https://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2021-04-01T00%3A00&rToDate=2021-12-31T23%3A59%3A59&rFamily=people_sh&rSensor=CB11.PC02.14.Broadway&rSubSensor=CB11.02.Broadway.East+In"));
-  map3.p1.setData(loadData("https://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2020-04-01T00%3A00&rToDate=2020-12-31T23%3A59%3A34&rFamily=people&rSensor=+PC02.14+%28In%29"));
-  map4.p1.setData(loadData("https://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2019-04-01T00%3A00&rToDate=2019-12-31T23%3A59%3A34&rFamily=people&rSensor=+PC02.14+%28In%29"));
+  map1.p1.setData(loadData("2022_Broadway"));
+  map2.p1.setData(loadData("2021_Broadway"));
+  map3.p1.setData(loadData("2020_Broadway"));
+  map4.p1.setData(loadData("2019_Broadway"));
   
   // Set the data for Jones St TODO set for each map
-  map1.p2.setData(loadData("https://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2022-04-01T00%3A00&rToDate=2022-12-31T23%3A59%3A59&rFamily=people_sh&rSensor=CB11.PC02.16.JonesStEast&rSubSensor=CB11.02.JonesSt+In"));
-  map2.p2.setData(loadData("https://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2021-04-01T00%3A00&rToDate=2021-12-31T23%3A59%3A59&rFamily=people_sh&rSensor=CB11.PC02.16.JonesStEast&rSubSensor=CB11.02.JonesSt+In"));
-  map3.p2.setData(loadData("https://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2020-04-01T00%3A00&rToDate=2020-12-31T23%3A59%3A34&rFamily=people&rSensor=+PC02.16+%28In%29"));
-  map4.p2.setData(loadData("https://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2019-04-01T00%3A00&rToDate=2019-12-31T23%3A59%3A34&rFamily=people&rSensor=+PC02.16+%28In%29"));
+  map1.p2.setData(loadData("2022_JonesSt"));
+  map2.p2.setData(loadData("2021_JonesSt"));
+  map3.p2.setData(loadData("2020_JonesSt"));
+  map4.p2.setData(loadData("2019_JonesSt"));
   
   // Set the start time for the sketch (compare the first 2 times), set the currentTime to the startTime to begin. TODO - get the time regardless of year.
   String[] startTimes = {map1.p1.data[0][0], map1.p2.data[0][0], 
@@ -70,6 +69,17 @@ void setup() {
   currentTime = startTime;
   latestTime = startTime;
   
+  // Add timescale toggle
+  addToggle();
+  
+  // Load Audio
+  sounds = new SoundFile[6];
+  sounds[0] = new SoundFile(this, "footstep1.mp3");
+  sounds[1] = new SoundFile(this, "footstep2.mp3");
+  sounds[2] = new SoundFile(this, "footstep3.mp3");
+  sounds[3] = new SoundFile(this, "footstep4.mp3");
+  sounds[4] = new SoundFile(this, "door1.wav");
+  sounds[5] = new SoundFile(this, "door1.wav");
 }
 void draw() {
   background(backgroundColor);
@@ -88,6 +98,7 @@ void draw() {
   latestTimeScale = timeScale;
   
   if (frameCount == 1 || frameCount * pollRate % targetFrames <= 0.05) {
+    currentTime = currentTime.truncatedTo(ChronoUnit.HOURS);
     latestTime = currentTime;
     if (timeScale.equals("HOUR")) {
       currentTime = currentTime.plusHours(1);
@@ -124,8 +135,8 @@ LocalDateTime getStartTime(String[] strings) {
   return min.truncatedTo(ChronoUnit.HOURS);
 }
 
-String[][] loadData(String url) {
-  Table dataTable = loadTable(url, "csv");
+String[][] loadData(String fileName) {
+  Table dataTable = loadTable("Assets/Data/" + fileName + ".csv", "csv");
   String[][] data;
   data = new String[dataTable.getRowCount()][2];
   
@@ -168,5 +179,23 @@ void displayBusiest(int x1, int x2, int x3, int x4) {
   }
   if (x4 >= x1 && x4 >= x2 && x4 >= x3) {
     map4.displayBusiest();
+  }
+}
+  
+void playAudio(int n) {
+  if (n == 0) {
+    stopPlayingAudio();
+  }
+  for (int i = 0; i < n; i++) {
+    int index = (int)random(0,3.9);
+      sounds[index].play();
+  }
+}
+
+void stopPlayingAudio() {
+  for (SoundFile sound : sounds) {
+    if (sound.isPlaying()) {
+      sound.stop();
+    }
   }
 }

@@ -3,9 +3,11 @@
 
 public class Map {
   int xpos, ypos;
+  float w =  DRAW_WIDTH/2 - WIDTH_PADDING/2, h = DRAW_HEIGHT/2 - 10;
   String year;
   Passage p1, p2;
   int[] ns = {0,0};
+  boolean setAudioEnabled = false;
 
   // Default constructor, draws a rectangle of width * height in the middlish of the screen.
   public Map(int quadrant, String year) {
@@ -19,8 +21,8 @@ public class Map {
     } else {
       ypos = TOP_OFFSET + DRAW_HEIGHT/2;
     }
-    p1 = new Passage("Broadway", xpos + width/2.8, ypos + height/4 - 100, this.xpos);
-    p2 = new Passage("Jones St", xpos + width/2.8, ypos + height/4 + 30, this.xpos);
+    p1 = new Passage("Broadway", xpos + width/2.7, ypos + height/4 - 100, this.xpos, this, 4);
+    p2 = new Passage("Jones St", xpos + width/2.7, ypos + height/4 + 30, this.xpos, this, 5);
     this.year = year;
   }
   
@@ -28,8 +30,18 @@ public class Map {
     if (frameCount == 1 || frameCount * pollRate % targetFrames <= 0.05) {
       ns = updateInterval(timeScale);
     }
-    fill(255);
-    rect(xpos, ypos, DRAW_WIDTH/2 - WIDTH_PADDING/2, DRAW_HEIGHT/2 - 10);
+    
+    if (mouseX >= xpos && mouseX <= xpos + w && mouseY >= ypos && mouseY <= ypos + h) {
+      if (frameCount % 30 == 0) {
+        playAudio(max((p1.people.size() + p2.people.size()) % 5, (int)Math.ceil(map(p1.people.size() + p2.people.size(), 0, 5000, 0, 80))));
+      }
+      setAudioEnabled = true;
+    } else {
+      setAudioEnabled = false;
+    }
+          
+    fill(255,230);
+    rect(xpos, ypos, w, h);
     p1.display(ns[0], ns[0] > ns[1]);
     p2.display(ns[1], ns[1] > ns[0]);
     drawCounter(ns[0], ns[1]);
@@ -39,7 +51,7 @@ public class Map {
   // Turns the busiest map green.
   void displayBusiest() {
     fill(0,200,0,30);
-    rect(xpos, ypos, DRAW_WIDTH/2 - WIDTH_PADDING/2, DRAW_HEIGHT/2 - 10);
+    rect(xpos, ypos, w, h);
   }
   
   int[] updateInterval(String timeScale) {
@@ -68,5 +80,5 @@ public class Map {
     textSize(40);
     text(year, xpos + DRAW_WIDTH/2 - 100, ypos + 40);
   }
-  
+
 }
