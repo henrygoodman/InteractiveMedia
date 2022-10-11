@@ -12,14 +12,14 @@ public class Person {
    
    public Person(Passage p) {
      entrancePosition[0] = p.position[0] + random(p.w/2);
-     entrancePosition[1] = p.position[1];
+     entrancePosition[1] = p.passageHeight;
      mapPosition = p.entrancePos;
      xpos = (float)(random(300) - 300) + p.entrancePos;
-     ypos = (float)(p.h/2 + random(p.h/3) + entrancePosition[1]);
+     ypos = (float)(random(-p.h/1.5, p.h/1.5) - 10) + entrancePosition[1];
      xDiff = entrancePosition[0] - p.entrancePos;
      deltaX = xDiff * pollRate * 2/targetFrames;
-     minY = entrancePosition[1] + 10;
-     maxY = minY + p.h - 10;
+     minY = entrancePosition[1] - 15;
+     maxY = minY + p.h;
      this.p = p;
    }
    
@@ -29,7 +29,6 @@ public class Person {
      }
    }
   
-   //This will update the x position by a factor whereby after the amount of frames before the next update, it will be at the entrance...
    public void walkIn() {
      if (walkedIn) {return;}
      currDistX = xDiff - (xpos - mapPosition);

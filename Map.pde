@@ -21,8 +21,8 @@ public class Map {
     } else {
       ypos = TOP_OFFSET + DRAW_HEIGHT/2;
     }
-    p1 = new Passage("Broadway", xpos + width/2.7, ypos + height/4 - 100, this.xpos, this, 4);
-    p2 = new Passage("Jones St", xpos + width/2.7, ypos + height/4 + 30, this.xpos, this, 5);
+    p1 = new Passage("Broadway", xpos + 400, ypos + 40, this, 4);
+    p2 = new Passage("Jones St", xpos + 400, ypos + 38, this, 5);
     this.year = year;
   }
   

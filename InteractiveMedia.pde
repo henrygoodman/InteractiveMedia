@@ -1,31 +1,22 @@
- import controlP5.*;
- import processing.sound.*;    
-/* This file will act as the basic skeleton for assignment 2. Defining all the classes we need, the functions, etc. We will work on components separately, and then once they are finished
- * we can add them to this skeleton and consider that portion complete. 
- *
- * GENERAL OVERVIEW OF FUNCTIONALITY:
- * We want to model the people tracking data from both level 2 entrances/exits. We will download data for the entire year, as this will allow us to have a large range if needed which we can
- * zoom into. We also wish to store the data from the past 2-3 previous years, as by using different colours (and GUI selector elements), we can show which data points correspond to which
- * year. This gives a good comparison of traffic between the years. 
- *
- */
+import controlP5.*;
+import processing.sound.*;    
 
 // GLOBAL PARAMETERS
 ControlP5 cp5;
 Map map1, map2, map3, map4;
 int n1, n2, n3, n4; // Tracks the entrance count for both passages at each time interval.
-LocalDateTime startTime;
-LocalDateTime currentTime, latestTime;
+LocalDateTime startTime, currentTime, latestTime;
 float targetFrames = 60;
 SoundFile[] sounds;
 
 // Parameters accessible to change
 color backgroundColor = color( 10, 10, 10);
 float pollRate = 0.3; // This number determines how many updates occur each second of real time.
+
+// UI element value trackers.
 boolean toggleValue = true;
 String timeScale = toggleValue ? "HOUR" : "DAY";
 String latestTimeScale = "";
-
 int TOP_OFFSET = 80;
 int WIDTH_PADDING = 20;
 int DRAW_HEIGHT;
@@ -48,19 +39,19 @@ void setup() {
   map3 = new Map(3, "2020");
   map4 = new Map(4, "2019");
   
-  // Set the data for Broadway TODO set for each map
+  // Set the data for Broadway
   map1.p1.setData(loadData("2022_Broadway"));
   map2.p1.setData(loadData("2021_Broadway"));
   map3.p1.setData(loadData("2020_Broadway"));
   map4.p1.setData(loadData("2019_Broadway"));
   
-  // Set the data for Jones St TODO set for each map
+  // Set the data for Jones St
   map1.p2.setData(loadData("2022_JonesSt"));
   map2.p2.setData(loadData("2021_JonesSt"));
   map3.p2.setData(loadData("2020_JonesSt"));
   map4.p2.setData(loadData("2019_JonesSt"));
   
-  // Set the start time for the sketch (compare the first 2 times), set the currentTime to the startTime to begin. TODO - get the time regardless of year.
+  // Set the start time for the sketch (gets the min of all startTimes), set the currentTime to the startTime to begin.
   String[] startTimes = {map1.p1.data[0][0], map1.p2.data[0][0], 
                          map2.p1.data[0][0], map2.p2.data[0][0], 
                          map3.p1.data[0][0], map3.p2.data[0][0], 
@@ -85,7 +76,7 @@ void draw() {
   background(backgroundColor);
   drawMainGUI();
   
-  // n is the count displayed on each map in top corner.
+  // Display each map, store the current IN count for the specified time interval.
   n1 = map1.display();
   n2 = map2.display();
   n3 = map3.display();
