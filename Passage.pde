@@ -68,7 +68,7 @@ public class Passage {
   public void display(int count, boolean busier) {
     stroke(0);
     fill(163, 145, 132, 100);
-    rect(m.xpos, passageHeight - 20, m.w - 50, 40);
+    rect(m.xpos, passageHeight - 17, m.w - 50, 40);
     
     removePeople();
     updateDoor();
@@ -100,7 +100,7 @@ public class Passage {
       int addCount = 0;
       while (addCount < currentData) {
           // If we are drawing heaps, only render every 2nd.
-          if (intervalCount > 100 && addCount % 8 != 0) break;
+          if (intervalCount > 100 && intervalCount % 256 != 0) break;
           people.add(new Person(this));
           addCount++;
       }
@@ -136,7 +136,7 @@ public class Passage {
       int addCount = 0;
       while (addCount < currentData) {
           // If we are drawing heaps, only render every 2nd.
-          if (intervalCount > 100 && addCount % 8 != 0) break;
+          if (intervalCount > 100 && intervalCount % 512 != 0) break;
           people.add(new Person(this));
           addCount++;
       }
@@ -198,7 +198,7 @@ public class Passage {
        doorOpen = true;
        return;
      }
-     if (frameCount % 5 == 0) {
+     if (frameCount % 3 == 0) {
        currentDoorIndex += 1;
        doorState = door[currentDoorIndex];
      }
@@ -212,7 +212,7 @@ public class Passage {
       doorOpen = false;
       return;
     }
-    if (frameCount % 5 == 0) {
+    if (frameCount % 3 == 0) {
        currentDoorIndex -= 1;
        doorState = door[currentDoorIndex];
     }

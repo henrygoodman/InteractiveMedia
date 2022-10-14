@@ -15,10 +15,10 @@ public class Person {
      entrancePosition[1] = p.passageHeight;
      mapPosition = p.entrancePos;
      xpos = (float)(random(300) - 300) + p.entrancePos;
-     ypos = (float)(random(-p.h/1.5, p.h/1.5) - 10) + entrancePosition[1];
+     ypos = (float)(random(-p.h/1.8, p.h/1.8)) + entrancePosition[1];
      xDiff = entrancePosition[0] - p.entrancePos;
      deltaX = xDiff * pollRate * 2/targetFrames;
-     minY = entrancePosition[1] - 15;
+     minY = entrancePosition[1] - 5;
      maxY = minY + p.h;
      this.p = p;
    }
