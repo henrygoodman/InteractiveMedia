@@ -11,16 +11,15 @@ SoundFile[] sounds;
 
 // Parameters accessible to change
 color backgroundColor = color( 10, 10, 10);
-float pollRate = 0.5; // This number determines how many updates occur each second of real time.
+float pollRate = 0.6; // This number determines how many updates occur each second of real time.
 
 // UI element value trackers.
 boolean toggleValue = true;
 String timeScale = toggleValue ? "HOUR" : "DAY";
 String latestTimeScale = "";
-int TOP_OFFSET = 80;
-int WIDTH_PADDING = 20;
-int DRAW_HEIGHT;
-int DRAW_WIDTH;
+
+// Constant screen size drawing parameters.
+int TOP_OFFSET = 80, WIDTH_PADDING = 20, DRAW_HEIGHT, DRAW_WIDTH;
 
 void setup() {
   DRAW_HEIGHT = height - TOP_OFFSET;
@@ -32,6 +31,7 @@ void setup() {
   
   // Instantiate GUI controller
   cp5 = new ControlP5(this);
+  
   
   // Load the maps
   map1 = new Map(1, "2022");
@@ -51,7 +51,7 @@ void setup() {
   map3.p2.setData(loadData("2020_JonesSt"));
   map4.p2.setData(loadData("2019_JonesSt"));
   
-  // Set the start time for the sketch (gets the min of all startTimes), set the currentTime to the startTime to begin.
+    // Set the start time for the sketch (gets the min of all startTimes on the same day (like Sunday)), set the currentTime to the startTime to begin.
   String[] startTimes = {map1.p1.data[0][0], map1.p2.data[0][0], 
                          map2.p1.data[0][0], map2.p2.data[0][0], 
                          map3.p1.data[0][0], map3.p2.data[0][0], 
@@ -62,15 +62,29 @@ void setup() {
   
   // Add timescale toggle
   addToggle();
+ 
+  // Reinitialise the start times for each map (each have different days to offset).
+  map1.reinit();
+  map2.reinit();
+  map3.reinit();
+  map4.reinit();
   
-  // Load Audio
-  sounds = new SoundFile[6];
+  // Load Audio (using the same clips multiple times in the array allows us to play the same sound more than once at a time for a 'layered' effect)
+  sounds = new SoundFile[14];
   sounds[0] = new SoundFile(this, "footstep1.mp3");
   sounds[1] = new SoundFile(this, "footstep2.mp3");
   sounds[2] = new SoundFile(this, "footstep3.mp3");
   sounds[3] = new SoundFile(this, "footstep4.mp3");
-  sounds[4] = new SoundFile(this, "door1.wav");
-  sounds[5] = new SoundFile(this, "door1.wav");
+  sounds[4] = new SoundFile(this, "footstep3.mp3");
+  sounds[5] = new SoundFile(this, "footstep4.mp3");
+  sounds[6] = new SoundFile(this, "footstep1.mp3");
+  sounds[7] = new SoundFile(this, "footstep2.mp3");
+  sounds[8] = new SoundFile(this, "footstep3.mp3");
+  sounds[9] = new SoundFile(this, "footstep4.mp3");
+  sounds[10] = new SoundFile(this, "footstep1.mp3");
+  sounds[11] = new SoundFile(this, "footstep2.mp3");
+  sounds[12] = new SoundFile(this, "door1.wav");
+  sounds[13] = new SoundFile(this, "door1.wav");
 }
 void draw() {
   background(backgroundColor);
@@ -93,9 +107,17 @@ void draw() {
     latestTime = currentTime;
     if (timeScale.equals("HOUR")) {
       currentTime = currentTime.plusHours(1);
+      map1.currentYearTime = map1.currentYearTime.plusHours(1);
+      map2.currentYearTime = map2.currentYearTime.plusHours(1);
+      map3.currentYearTime = map3.currentYearTime.plusHours(1);
+      map4.currentYearTime = map4.currentYearTime.plusHours(1);
     }
     if (timeScale.equals("DAY")) {
       currentTime = currentTime.plusHours(24 - currentTime.getHour());
+      map1.currentYearTime = map1.currentYearTime.plusHours(24 - map1.currentYearTime.getHour());
+      map2.currentYearTime = map2.currentYearTime.plusHours(24 - map2.currentYearTime.getHour());
+      map3.currentYearTime = map3.currentYearTime.plusHours(24 - map3.currentYearTime.getHour());
+      map4.currentYearTime = map4.currentYearTime.plusHours(24 - map4.currentYearTime.getHour());
     }
   }
 }
@@ -111,6 +133,7 @@ void drawMainGUI() {
   }
   textSize(15);
   text("Scale: " + timeScale, width - 100, 40);
+  text("Start day: " + startTime.getDayOfWeek(), 20, 50);
 }
 
 
@@ -178,7 +201,7 @@ void playAudio(int n) {
     stopPlayingAudio();
   }
   for (int i = 0; i < n; i++) {
-    int index = (int)random(0,3.9);
+    int index = (int)random(0,11.9);
       sounds[index].play();
   }
 }

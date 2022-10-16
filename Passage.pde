@@ -5,19 +5,14 @@ import java.time.temporal.ChronoUnit;
 
 public class Passage {
   float[] position = {0, 0};
-  String name;
+  String name, busiestDay;
   String[][] data;
-  int index = 0;
   LinkedList<Person> people;
-  float w = 80;
-  float h = 40;
-  float entrancePos;
-  float passageHeight;
+  float w = 80, h = 40, entrancePos, passageHeight;
   PImage[] door;
   PImage doorState;
   boolean doorOpen = false;
-  int currentDoorIndex = 0;
-  int soundIndex;
+  int index = 0, currentDoorIndex = 0, soundIndex, totalCount = 0;
   Map m;
   PImage[] img = {loadImage("Assets/Images/StickF1.gif"),
                   loadImage("Assets/Images/StickF2.gif"),
@@ -36,13 +31,14 @@ public class Passage {
                   loadImage("Assets/Images/door2_3.gif"),
                 };
   
-  public Passage(String name, float x, float y, Map m, int si) {
+  public Passage(String name, float x, float y, Map m, int si, String busiestDay) {
     this.name = name;
     position[0] = x;
     position[1] = y;
     people = new LinkedList();
     entrancePos = m.xpos;
     this.m = m;
+    this.busiestDay = busiestDay;
     soundIndex = si;
     
     if (this.name == "Broadway") {
@@ -65,11 +61,10 @@ public class Passage {
     return position;
   }
   
-  public void display(int count, boolean busier) {
+  public void display(int count) {
     stroke(0);
     fill(163, 145, 132, 100);
     rect(m.xpos, passageHeight - 17, m.w - 50, 40);
-    
     removePeople();
     updateDoor();
     fill(134, 90);
@@ -79,7 +74,34 @@ public class Passage {
       people.get(i).display(img[frameCount % 32 / 8]);
       people.get(i).move();
     }
-
+    
+    float ypos;
+    if (name.equals("Broadway")) {
+      ypos = position[1];
+    } else {
+      ypos = position[1] + 200;
+    }
+    if (mouseX > position[0] - 100 && mouseX < position[0] - 100 + 3 * w && mouseY > ypos && mouseY < ypos + 2 * h) {
+       displayInfoBox(count); 
+    }
+  }
+  
+  void displayInfoBox(int count) {
+    float ypos; 
+    float xpos = position[0] - 150;
+    if (name.equals("Broadway")) {
+      ypos = position[1];
+    } else {
+      ypos = position[1] + 200;
+    }
+    fill(255, 220);
+    rect(xpos, ypos, 200, 100, 5,5,5,5);
+    textSize(15);
+    fill(0);
+    text(name + " " + m.year, xpos + 10, ypos + 25);
+    text("Current Interval Count: " + count, xpos + 10, ypos + 45);
+    text("Total Count: " + totalCount, xpos + 10, ypos + 65);
+    text("Busiest day: " + busiestDay, xpos + 10, ypos + 85);
   }
   
   // update the sketch, show all the data points from the given time interval (currently an hour).
@@ -109,10 +131,16 @@ public class Passage {
       
       // Get a new data point while in the same hour.
       index++;
-      if (index >= data.length) {index = 0;}
+      if (index >= data.length) {
+        index = 0;
+        m.reinit();
+        currentTime = startTime;
+        latestTime = startTime;
+      }
       currentTime = stringToDate(data[index][0]);
       currentData = Float.parseFloat(data[index][1]);
     }
+    totalCount += intervalCount;
     return intervalCount;
   }
   
@@ -144,10 +172,16 @@ public class Passage {
       
       // Get a new data point while in the same day.
       index++;
-      if (index >= data.length) {index = 0;}
+      if (index >= data.length) {
+        index = 0;
+        m.reinit();
+        currentTime = startTime;
+        latestTime = startTime;
+      }
       currentTime = stringToDate(data[index][0]);
       currentData = Float.parseFloat(data[index][1]);
     }
+    totalCount += intervalCount;
     return intervalCount;
   }
   

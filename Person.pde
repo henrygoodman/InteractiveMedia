@@ -1,12 +1,7 @@
 public class Person {
-   float xpos, ypos;
-   float xDiff, deltaX;
-   float minY, maxY;
-   float currDistX = 0;
+   float xpos, ypos, xDiff, deltaX, minY, maxY, currDistX = 0, mapPosition, size = random(4,8);
    float[] entrancePosition = new float[2];
    boolean walkedIn = false;
-   float mapPosition;
-   float size = random(4,8);
    int life = 0;
    Passage p;
    
