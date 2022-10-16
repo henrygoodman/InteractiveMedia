@@ -11,7 +11,7 @@ SoundFile[] sounds;
 
 // Parameters accessible to change
 color backgroundColor = color( 10, 10, 10);
-float pollRate = 0.6; // This number determines how many updates occur each second of real time.
+float pollRate = 0.5; // This number determines how many updates occur each second of real time.
 
 // UI element value trackers.
 boolean toggleValue = true;

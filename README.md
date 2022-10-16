@@ -1,6 +1,9 @@
 # InteractiveMedia
 Group 54 Repo
 
+Libraries:
+ControlP5
+Processing Sound
 
 Data Representation - 
 
